@@ -12,20 +12,18 @@ const getProduct = async () => {
 };
 
 const getProductByQuery = async (data: any) => {
-  const queryData = data;
-  if (
-    queryData.searchTerm === "name" ||
-    queryData.searchTerm === "brand" ||
-    queryData.searchTerm === "category"
-  ) {
-    const query = { [queryData.searchTerm]: { $exists: true } };
-    const result = await product.find(query);
-    console.log("test", queryData.searchTerm);
-    console.log("hello", result);
-    return result;
-  } else {
-    throw new Error("'name', 'brand', or 'category' is valid search term");
-  }
+  const searchTerm = data.searchTerm;
+  const filterProduct = searchTerm
+    ? {
+        $or: [
+          { name: { $regex: searchTerm, $options: "i" } },
+          { brand: { $regex: searchTerm, $options: "i" } },
+          { category: { $regex: searchTerm, $options: "i" } },
+        ],
+      }
+    : {}; 
+  const allProducts = await product.find(filterProduct);
+  return allProducts
 };
 
 const singleProductData = async (id: string) => {
